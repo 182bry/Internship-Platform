@@ -1,11 +1,20 @@
-from App.models import User
+from App.models import User, UserRole
 from App.database import db
 
-def create_user(username, password):
-    newuser = User(username=username, password=password)
+def create_user(username, password, role= UserRole.STUDENT.value):
+    newuser = User(username=username, password=password, role=role)
     db.session.add(newuser)
     db.session.commit()
     return newuser
+
+def create_student(username, password):
+    return create_user(username, password, UserRole.STUDENT)
+
+def create_staff(username, password):
+    return create_user(username, password, UserRole.STAFF)
+
+def create_employer(username, password):
+    return create_user(username, password, UserRole.EMPLOYER)
 
 def get_user_by_username(username):
     result = db.session.execute(db.select(User).filter_by(username=username))

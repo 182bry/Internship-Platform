@@ -1,0 +1,2 @@
+Requirement already satisfied: werkzeug in c:\users\bryan\flaskmvc\flaskmvc\venv\lib\site-packages (2.3.7)
+Requirement already satisfied: MarkupSafe>=2.1.1 in c:\users\bryan\flaskmvc\flaskmvc\venv\lib\site-packages (from werkzeug) (3.0.2)
