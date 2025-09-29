@@ -122,6 +122,7 @@ from App.controllers.application import (
     get_student_applications
 )
 
+# Create the CLI group
 application_cli = AppGroup('application', help='Application management commands')
 
 # Student applies
@@ -168,6 +169,19 @@ def reject_application_command(application_id, employer_id):
     else:
         print(f"Application {application_id} rejected by Employer {employer_id}")
 
+# List all applications
+@application_cli.command("list", help="List all applications")
+def list_applications_command():
+    from App.models.application import Application  # Import the model here
+    applications = Application.query.all()
+    if not applications:
+        print("No applications found.")
+    else:
+        for app_obj in applications:
+            student_name = app_obj.student.username if app_obj.student else f"Student {app_obj.student_id}"
+            internship_title = app_obj.internship.title if app_obj.internship else f"Internship {app_obj.internship_id}"
+            print(f"{app_obj.id}: {student_name} → {internship_title} | Status: {app_obj.status}")
+
 # Student views their applications
 @application_cli.command("student", help="List applications for a specific student")
 @click.argument("student_id", type=int)
@@ -177,9 +191,10 @@ def student_applications_command(student_id):
         print(f"No applications found for student {student_id}")
     else:
         print(f"Applications for student {student_id}:")
-        for app in applications:
-            internship_title = app.internship.title if app.internship else "Unknown"
-            print(f"  {app.id}: {internship_title} | Status: {app.status}")
+        for app_obj in applications:
+            internship_title = app_obj.internship.title if app_obj.internship else "Unknown"
+            student_name = app_obj.student.username if app_obj.student else f"Student {app_obj.student_id}"
+            print(f"  {app_obj.id}: {internship_title} | {student_name} | Status: {app_obj.status}")
 
-# Add the group to app
+# Register the CLI group with the Flask app
 app.cli.add_command(application_cli)
