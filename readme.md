@@ -12,7 +12,7 @@ Built using the **MVC architecture pattern** with role-based user access.
   - Accept/reject students from shortlist  
 
 - **Staff**
-  - Add students to internship shortlist  
+  - Shortlist students for internship positions  
 
 - **Student**
   - View shortlisted positions and employer responses  
@@ -40,20 +40,23 @@ flaskmvc/
 ## Installation & Setup
 
 1. **Clone the repository**
-git clone <your-repo-url>
-cd flaskmvc
+git clone https://github.com/182bry/Internship-Platform.git
+cd InternshipPlatform
 
-2. **Create virtual environment**
+2. **Optional- Open project in VS Code
+code . # opens the current folder in a new VS Code window, ensuring all files and subfolders are visible
+
+4. **Create virtual environment**
 python -m venv venv
 # Windows
 venv\Scripts\activate
 # Linux/Mac
 source venv/bin/activate
 
-3. **Install dependencies**
+4. **Install dependencies**
 pip install -r requirements.txt
 
-4. **Initialize Database**
+5. **Initialize Database**
 flask init
 
 # CLI Commands Reference
@@ -121,4 +124,10 @@ flask db migrate
 flask db upgrade
 ```
 
+**Notes**
+- The database comes pre-populated with default users for easier testing (student1, staff1, employer1).
+
+- Make sure to activate the virtual environment before running CLI commands.
+
+- Role-based restrictions are enforced in the CLI: only valid users can perform certain actions.
 
