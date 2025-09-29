@@ -1,4 +1,4 @@
-from App.models import Application, ApplicationStatus, User, Internship
+from App.models import Application, User, Internship
 from App.database import db
 
 def create_application(student_id, internship_id):
@@ -11,7 +11,7 @@ def create_application(student_id, internship_id):
     application = Application(
         student_id=student_id,
         internship_id=internship_id,
-        status=ApplicationStatus.PENDING
+        status='pending'  
     )
     db.session.add(application)
     db.session.commit()
@@ -24,7 +24,7 @@ def shortlist_application(application_id, staff_id):
     if not application or not staff or not staff.is_staff():
         return None
     
-    application.status = ApplicationStatus.SHORTLISTED
+    application.status = 'shortlisted'
     db.session.commit()
     return application
 
@@ -36,7 +36,7 @@ def accept_application(application_id, employer_id):
         application.internship.employer_id != employer_id):
         return None
     
-    application.status = ApplicationStatus.ACCEPTED
+    application.status = 'accepted'
     db.session.commit()
     return application
 
@@ -48,7 +48,7 @@ def reject_application(application_id, employer_id):
         application.internship.employer_id != employer_id):
         return None
     
-    application.status = ApplicationStatus.REJECTED
+    application.status = 'rejected'
     db.session.commit()
     return application
 

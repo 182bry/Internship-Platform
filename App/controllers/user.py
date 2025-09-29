@@ -1,20 +1,20 @@
-from App.models import User, UserRole
+from App.models import User
 from App.database import db
 
-def create_user(username, password, role= UserRole.STUDENT.value):
+def create_user(username, password, role='student'):
     newuser = User(username=username, password=password, role=role)
     db.session.add(newuser)
     db.session.commit()
     return newuser
 
 def create_student(username, password):
-    return create_user(username, password, UserRole.STUDENT)
+    return create_user(username, password, 'student')
 
 def create_staff(username, password):
-    return create_user(username, password, UserRole.STAFF)
+    return create_user(username, password, 'staff')
 
 def create_employer(username, password):
-    return create_user(username, password, UserRole.EMPLOYER)
+    return create_user(username, password, 'employer')
 
 def get_user_by_username(username):
     result = db.session.execute(db.select(User).filter_by(username=username))
@@ -37,7 +37,6 @@ def update_user(id, username):
     user = get_user(id)
     if user:
         user.username = username
-        # user is already in the session; no need to re-add
         db.session.commit()
         return True
     return None

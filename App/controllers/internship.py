@@ -1,9 +1,9 @@
-from App.models import Internship, User, UserRole, Application, ApplicationStatus
+from App.models import Internship, User
 from App.database import db
 
 def create_internship(title, description, employer_id):
     employer = User.query.get(employer_id)
-    if not employer or not employer.is_employer():
+    if not employer or employer.role != 'employer':
         return None
     
     internship = Internship(

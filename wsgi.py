@@ -12,7 +12,12 @@ migrate = get_migrate(app)
 def init():
     db.drop_all()
     db.create_all()
-    print('Database initialized')
+    # Pre-populate users
+    from App.controllers.user import create_student, create_staff, create_employer
+    create_student('student1', 'pass')
+    create_staff('staff1', 'pass')
+    create_employer('employer1', 'pass')
+    print('Database initialized with default users')
 
 # User Commands 
 user_cli = AppGroup('user', help='User object commands')
@@ -83,8 +88,11 @@ def list_internships_command():
         else:
             for internship in internships:
                 print(f"{internship.id}: {internship.title} - Employer: {internship.employer_id}")
+                if internship.description:
+                    print(f"   Description: {internship.description}")
+
     except Exception as e:
-        print(f"❌ Error listing internships: {e}")
+        print(f"Error listing internships: {e}")
 
 app.cli.add_command(internship_cli)
 
@@ -103,139 +111,75 @@ def user_tests_command(type):
     
 app.cli.add_command(test)
 
-print("wsgi.py loaded successfully!")
+#print("wsgi.py loaded successfully!")
 
-# Application Commands 
+# Application Commands
+from App.controllers.application import (
+    create_application,
+    shortlist_application,
+    accept_application,
+    reject_application,
+    get_student_applications
+)
+
 application_cli = AppGroup('application', help='Application management commands')
 
+# Student applies
 @application_cli.command("create", help="Apply for an internship")
 @click.argument("student_id", type=int)
 @click.argument("internship_id", type=int)
 def create_application_command(student_id, internship_id):
-    from App.models import Application, User, Internship
-    try:
-        # Basic validation
-        student = User.query.get(student_id)
-        internship = Internship.query.get(internship_id)
-        
-        if not student:
-            print(f"Student {student_id} not found")
-            return
-        if not internship:
-            print(f"Internship {internship_id} not found")
-            return
-        
-        application = Application(student_id=student_id, internship_id=internship_id)
-        db.session.add(application)
-        db.session.commit()
+    app_obj = create_application(student_id, internship_id)
+    if app_obj is None:
+        print("Cannot create application. Make sure the user is a student and the internship exists.")
+    else:
         print(f"Application created! Student {student_id} → Internship {internship_id}")
-    except Exception as e:
-        print(f"Error creating application: {e}")
 
-@application_cli.command("list", help="List all applications")
-def list_applications_command():
-    from App.models import Application
-    try:
-        applications = Application.query.all()
-        if not applications:
-            print("No applications found.")
-        else:
-            for app in applications:
-                print(f"{app.id}: Student {app.student_id} → Internship {app.internship_id} | Status: {app.status}")
-    except Exception as e:
-        print(f"Error listing applications: {e}")
-
-app.cli.add_command(application_cli)
-
-# Advanced Application Commands
+# Staff shortlists
 @application_cli.command("shortlist", help="Shortlist an application (Staff only)")
 @click.argument("application_id", type=int)
 @click.argument("staff_id", type=int)
 def shortlist_application_command(application_id, staff_id):
-    from App.models import Application, User
-    try:
-        application = Application.query.get(application_id)
-        staff = User.query.get(staff_id)
-        
-        if not application:
-            print("Application not found")
-            return
-        if not staff or staff.role != 'staff':
-            print("Only staff can shortlist applications")
-            return
-        
-        application.status = 'shortlisted'
-        db.session.commit()
+    app_obj = shortlist_application(application_id, staff_id)
+    if app_obj is None:
+        print("Cannot shortlist application. Only staff can shortlist valid applications.")
+    else:
         print(f"Application {application_id} shortlisted by Staff {staff_id}")
-    except Exception as e:
-        print(f"Error: {e}")
 
+# Employer accepts
 @application_cli.command("accept", help="Accept an application (Employer only)")
 @click.argument("application_id", type=int)
 @click.argument("employer_id", type=int)
 def accept_application_command(application_id, employer_id):
-    from App.models import Application, User, Internship
-    try:
-        application = Application.query.get(application_id)
-        employer = User.query.get(employer_id)
-        
-        if not application:
-            print("Application not found")
-            return
-        if not employer or employer.role != 'employer':
-            print("Only employers can accept applications")
-            return
-        if application.internship.employer_id != employer_id:
-            print("Employer can only accept applications for their own internships")
-            return
-        
-        application.status = 'accepted'
-        db.session.commit()
+    app_obj = accept_application(application_id, employer_id)
+    if app_obj is None:
+        print("Cannot accept application. Only the employer who owns the internship can accept.")
+    else:
         print(f"Application {application_id} accepted by Employer {employer_id}")
-    except Exception as e:
-        print(f"Error: {e}")
 
+# Employer rejects
 @application_cli.command("reject", help="Reject an application (Employer only)")
 @click.argument("application_id", type=int)
 @click.argument("employer_id", type=int)
 def reject_application_command(application_id, employer_id):
-    from App.models import Application, User
-    try:
-        application = Application.query.get(application_id)
-        employer = User.query.get(employer_id)
-        
-        if not application:
-            print("Application not found")
-            return
-        if not employer or employer.role != 'employer':
-            print("Only employers can reject applications")
-            return
-        if application.internship.employer_id != employer_id:
-            print("Employer can only reject applications for their own internships")
-            return
-        
-        application.status = 'rejected'
-        db.session.commit()
+    app_obj = reject_application(application_id, employer_id)
+    if app_obj is None:
+        print("Cannot reject application. Only the employer who owns the internship can reject.")
+    else:
         print(f"Application {application_id} rejected by Employer {employer_id}")
-    except Exception as e:
-        print(f"Error: {e}")
 
+# Student views their applications
 @application_cli.command("student", help="List applications for a specific student")
 @click.argument("student_id", type=int)
 def student_applications_command(student_id):
-    from App.models import Application, User
-    try:
-        student = User.query.get(student_id)
-        if not student:
-            print("Student not found")
-            return
-        
-        applications = Application.query.filter_by(student_id=student_id).all()
-        if not applications:
-            print(f"No applications found for student {student_id}")
-        else:
-            print(f"Applications for {student.username}:")
-            for app in applications:
-                print(f"  {app.id}: {app.internship.title} | Status: {app.status}")
-    except Exception as e:
-        print(f"Error: {e}")
+    applications = get_student_applications(student_id)
+    if not applications:
+        print(f"No applications found for student {student_id}")
+    else:
+        print(f"Applications for student {student_id}:")
+        for app in applications:
+            internship_title = app.internship.title if app.internship else "Unknown"
+            print(f"  {app.id}: {internship_title} | Status: {app.status}")
+
+# Add the group to app
+app.cli.add_command(application_cli)

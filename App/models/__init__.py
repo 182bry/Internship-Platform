@@ -1,3 +1,3 @@
-from .user import *
-from .internship import *
-from .application import *
+from .user import User
+from .internship import Internship
+from .application import Application
