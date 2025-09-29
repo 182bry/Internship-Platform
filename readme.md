@@ -19,46 +19,39 @@ Built using the **MVC architecture pattern** with role-based user access.
 
 ---
 
-## Project Structure
-flaskmvc/
-├── App/
-│ ├── models/
-│ │ ├── user.py # User model with role-based system
-│ │ ├── internship.py # Internship position model
-│ │ └── application.py # Application tracking model
-│ ├── controllers/ # Business logic (user, internship, application)
-│ ├── views/ # Flask blueprints (future web extension)
-│ └── init.py
-├── migrations/ # Database migrations
-├── venv/ # Virtual environment
-├── wsgi.py # CLI command definitions
-└── requirements.txt # Dependencies
-
-
----
-
 ## Installation & Setup
 
 1. **Clone the repository**
+```bash
 git clone https://github.com/182bry/Internship-Platform.git
 cd InternshipPlatform
+```
 
-2. **Optional- Open project in VS Code
+3. **Optional- Open project in VS Code
 code . # opens the current folder in a new VS Code window, ensuring all files and subfolders are visible
 
 4. **Create virtual environment**
+```bash
 python -m venv venv
+```
 # Windows
+```bash
 venv\Scripts\activate
+```
 # Linux/Mac
+```bash
 source venv/bin/activate
+```
 
 4. **Install dependencies**
+```bash
 pip install -r requirements.txt
+```
 
-5. **Initialize Database**
+6. **Initialize Database**
+```bash
 flask init
-
+```
 # CLI Commands Reference
 User Management:
 ```bash
