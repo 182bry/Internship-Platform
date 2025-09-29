@@ -24,13 +24,14 @@ Built using the **MVC architecture pattern** with role-based user access.
 1. **Clone the repository**
 ```bash
 git clone https://github.com/182bry/Internship-Platform.git
-cd InternshipPlatform
+cd Internship-Platform
 ```
 
 3. **Optional- Open project in VS Code
+```bash
 code . # opens the current folder in a new VS Code window, ensuring all files and subfolders are visible
-
-4. **Create virtual environment**
+```
+5. **Create virtual environment**
 ```bash
 python -m venv venv
 ```
